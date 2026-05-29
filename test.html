@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBT Test — NTAprep</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--nta:#1a237e;--nta2:#283593;--acc:#1565c0;--green:#2e7d32;--orange:#e65100;--red:#c62828;--bg:#eceae5;--brd:#d4d1cb;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);overflow:hidden;}
+
+#loading{position:fixed;inset:0;background:var(--nta);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;text-align:center;}
+#loading h2{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:.4rem;}
+#loading p{font-size:.83rem;opacity:.6;margin-bottom:1.4rem;}
+.ld-bar{width:240px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden;}
+.ld-fill{height:100%;background:#86efac;border-radius:2px;animation:lda 1.1s ease-in-out infinite;}
+@keyframes lda{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+
+#test-screen{display:none;position:fixed;inset:0;flex-direction:column;background:var(--bg);}
+#test-screen.on{display:flex;}
+
+/* Top bar */
+.nta-top{background:var(--nta);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:50px;flex-shrink:0;}
+.nt-left{display:flex;flex-direction:column;}
+.nt-title{font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem;}
+.nt-sub{font-size:.67rem;color:rgba(255,255,255,.5);}
+.nt-right{display:flex;align-items:center;gap:8px;}
+.timer{background:rgba(255,255,255,.12);border-radius:6px;padding:5px 12px;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+.tdot{width:6px;height:6px;border-radius:50%;background:#ff5c5c;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+.timer.warn{background:rgba(239,68,68,.22);color:#fca5a5;}
+.topbtn{background:rgba(255,255,255,.12);border:none;color:#fff;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:.7rem;font-family:'DM Sans',sans-serif;}
+.topbtn:hover{background:rgba(255,255,255,.2);}
+
+/* Subject tabs */
+.subj-bar{background:var(--nta2);display:flex;padding:0 14px;flex-shrink:0;border-bottom:2px solid rgba(255,255,255,.05);}
+.stab{padding:9px 16px;font-size:.77rem;font-weight:500;color:rgba(255,255,255,.4);cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;transition:all .2s;margin-bottom:-2px;font-family:'DM Sans',sans-serif;}
+.stab.on{color:#fff;border-bottom-color:#ffeb3b;}
+.stab .sc{display:inline-block;margin-left:4px;background:rgba(255,255,255,.1);border-radius:100px;padding:1px 6px;font-size:.62rem;}
+.stab.on .sc{background:#ffeb3b;color:#1a237e;}
+
+/* Body */
+.test-body{display:flex;flex:1;overflow:hidden;}
+.q-area{flex:1;overflow-y:auto;padding:14px 18px;}
+.q-area::-webkit-scrollbar{width:5px;}
+.q-area::-webkit-scrollbar-thumb{background:#aaa;border-radius:3px;}
+
+.q-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:11px;gap:8px;flex-wrap:wrap;}
+.q-id{font-family:'Syne',sans-serif;font-size:.86rem;font-weight:700;color:#222;}
+.q-meta{font-size:.68rem;color:#888;margin-top:2px;}
+.q-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.chip{padding:2px 9px;border-radius:100px;font-size:.67rem;font-weight:600;}
+.chip-pos{background:#e8f5e9;color:#1b5e20;}
+.chip-neg{background:#ffebee;color:#b71c1c;}
+.chip-type{background:#ede9fe;color:#5b21b6;}
+.chip-type.msq{background:#fdf4ff;color:#7e22ce;}
+.q-stat{font-size:.68rem;padding:2px 9px;border-radius:100px;font-weight:500;}
+.q-stat.ans{background:#e8f5e9;color:#1b5e20;}
+.q-stat.mrk{background:#fff3e0;color:#c2410c;}
+.q-stat.nv{background:#f5f5f5;color:#777;}
+
+.q-img-card{background:#fff;border:1px solid var(--brd);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center;min-height:70px;display:flex;align-items:center;justify-content:center;}
+.q-img-card img{max-width:100%;max-height:320px;object-fit:contain;}
+
+/* Options */
+.msq-hint{font-size:.73rem;color:#7c3aed;background:#ede9fe;padding:5px 12px;border-radius:7px;margin-bottom:10px;font-weight:500;}
+.opts{display:flex;flex-direction:column;gap:7px;}
+.opt{display:flex;align-items:center;gap:11px;padding:10px 13px;border:1.5px solid #ccc;border-radius:9px;cursor:pointer;background:#fff;transition:all .12s;font-size:.84rem;color:#333;}
+.opt:hover{border-color:var(--acc);background:#f0f4ff;}
+/* MCQ single */
+.opt.sel{border-color:var(--acc);background:#e3eafc;color:#1565c0;font-weight:500;}
+/* MSQ multi */
+.opt.sel-m{border-color:#7c3aed;background:#ede9fe;color:#5b21b6;font-weight:500;}
+.opt-circ{width:26px;height:26px;border-radius:50%;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;color:#777;transition:all .12s;}
+.opt-sq{width:26px;height:26px;border-radius:5px;border:1.5px solid #bbb;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;color:#777;transition:all .12s;}
+.opt.sel .opt-circ{border-color:var(--acc);color:var(--acc);background:#e3eafc;}
+.opt.sel-m .opt-sq{border-color:#7c3aed;color:#7c3aed;background:#ede9fe;}
+.opt-txt{flex:1;line-height:1.5;}
+
+/* Palette */
+.pal-side{width:208px;background:#fff;border-left:1px solid var(--brd);display:flex;flex-direction:column;flex-shrink:0;}
+.pal-head{background:var(--nta);color:#fff;padding:10px 12px;font-family:'Syne',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.3px;}
+.pal-body{flex:1;overflow-y:auto;padding:10px;}
+.pal-body::-webkit-scrollbar{width:3px;}
+.pal-lbl{font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:#999;margin-bottom:6px;}
+.pal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:12px;}
+.pq{height:26px;border-radius:5px;border:1px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:.67rem;font-weight:600;cursor:pointer;background:#fff;color:#666;transition:all .1s;}
+.pq:hover{border-color:var(--acc);}
+.pq.cur{background:var(--acc);color:#fff;border-color:var(--acc);}
+.pq.done{background:var(--green);color:#fff;border-color:var(--green);}
+.pq.rev{background:var(--orange);color:#fff;border-color:var(--orange);}
+.legend{display:flex;flex-direction:column;gap:4px;}
+.leg{display:flex;align-items:center;gap:6px;font-size:.67rem;color:#888;}
+.ldot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.pal-foot{padding:9px 11px;border-top:1px solid #eee;}
+.summ{display:flex;gap:4px;}
+.sm{flex:1;background:#f8f7f4;border-radius:6px;padding:6px;text-align:center;}
+.sm-n{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;color:var(--nta);}
+.sm-l{font-size:.6rem;color:#bbb;}
+
+/* Footer */
+.test-foot{background:#fff;border-top:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:8px 14px;flex-shrink:0;gap:6px;flex-wrap:wrap;}
+.foot-l,.foot-r{display:flex;gap:6px;}
+.tbtn{padding:8px 15px;border-radius:7px;font-size:.77rem;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:opacity .2s;}
+.tbtn:hover{opacity:.8;}
+.tbtn-clear{background:#e8e6e1;color:#444;}
+.tbtn-mark{background:var(--orange);color:#fff;}
+.tbtn-prev{background:#546e7a;color:#fff;}
+.tbtn-next{background:var(--acc);color:#fff;}
+.tbtn-sub{background:var(--green);color:#fff;}
+
+/* Modals */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:99999;align-items:center;justify-content:center;}
+.overlay.on{display:flex;}
+.modal{background:#fff;border-radius:14px;padding:26px;max-width:370px;width:90%;text-align:center;}
+.m-ico{font-size:2.5rem;margin-bottom:.6rem;}
+.modal h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem;}
+.modal p{font-size:.82rem;color:#666;line-height:1.6;margin-bottom:1.2rem;}
+.m-btns{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
+.mbtn{padding:9px 18px;border-radius:100px;font-size:.79rem;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;}
+.mbtn-go{background:var(--acc);color:#fff;}
+.mbtn-sub{background:var(--red);color:#fff;}
+.mbtn-cancel{background:#e8e6e1;color:#444;}
+
+/* No data */
+#no-data{display:none;position:fixed;inset:0;background:#f3f1ec;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;}
+#no-data h2{font-family:'Syne',sans-serif;font-size:1.4rem;}
+#no-data p{font-size:.86rem;color:#777;max-width:280px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div style="font-size:2.5rem;margin-bottom:1rem">🎓</div>
+  <h2>NTAprep CBT</h2>
+  <p id="ld-msg">Loading test…</p>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+</div>
+
+<div id="no-data">
+  <div style="font-size:3rem">📭</div>
+  <h2>No Test Data Found</h2>
+  <p>Go to Test Maker, crop your questions, then launch the test.</p>
+  <a href="maker.html" style="background:#1a237e;color:#fff;padding:11px 22px;border-radius:100px;text-decoration:none;font-weight:500;font-size:.85rem;margin-top:.5rem">← Go to Test Maker</a>
+</div>
+
+<div id="test-screen">
+  <div class="nta-top">
+    <div class="nt-left">
+      <div class="nt-title" id="t-name">NTAprep · JEE Main</div>
+      <div class="nt-sub" id="t-sub">Joint Entrance Examination (Main) · Paper 1</div>
+    </div>
+    <div class="nt-right">
+      <div class="timer" id="timer-box"><div class="tdot"></div><span id="timer">03:00:00</span></div>
+      <button class="topbtn" onclick="goFS()">⛶ Fullscreen</button>
+    </div>
+  </div>
+
+  <div class="subj-bar" id="subj-bar"></div>
+
+  <div class="test-body">
+    <div class="q-area" id="q-area">
+      <div class="q-hdr">
+        <div>
+          <div class="q-id">Question <span id="qn">1</span> of <span id="qt">0</span></div>
+          <div class="q-meta" id="q-meta">Physics — Section A</div>
+        </div>
+        <div class="q-badges">
+          <span class="chip chip-pos">+4</span>
+          <span class="chip chip-neg" id="chip-neg">−1</span>
+          <span class="chip chip-type" id="chip-type">Single Correct</span>
+          <span class="q-stat nv" id="q-stat">Not Visited</span>
+        </div>
+      </div>
+      <div class="q-img-card"><img id="q-img" src="" alt="Question"></div>
+      <div id="msq-hint" class="msq-hint" style="display:none">☑ Multiple correct answers possible — select all that apply</div>
+      <div class="opts" id="opts"></div>
+    </div>
+
+    <div class="pal-side">
+      <div class="pal-head">QUESTION PALETTE</div>
+      <div class="pal-body">
+        <div class="pal-lbl" id="pal-lbl">Physics</div>
+        <div class="pal-grid" id="pal-grid"></div>
+        <div class="legend">
+          <div class="leg"><div class="ldot" style="background:var(--green)"></div>Answered</div>
+          <div class="leg"><div class="ldot" style="background:#fff;border:1px solid #ccc"></div>Not Visited</div>
+          <div class="leg"><div class="ldot" style="background:var(--acc)"></div>Current</div>
+          <div class="leg"><div class="ldot" style="background:var(--orange)"></div>Marked</div>
+        </div>
+      </div>
+      <div class="pal-foot">
+        <div style="font-size:.63rem;color:#bbb;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:600">Summary</div>
+        <div class="summ">
+          <div class="sm"><div class="sm-n" id="s-ans">0</div><div class="sm-l">Done</div></div>
+          <div class="sm"><div class="sm-n" id="s-mrk">0</div><div class="sm-l">Marked</div></div>
+          <div class="sm"><div class="sm-n" id="s-left">0</div><div class="sm-l">Left</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="test-foot">
+    <div class="foot-l">
+      <button class="tbtn tbtn-clear" onclick="clearAns()">Clear Response</button>
+      <button class="tbtn tbtn-mark" onclick="markRev()">Mark &amp; Next</button>
+    </div>
+    <div class="foot-r">
+      <button class="tbtn tbtn-prev" onclick="prevQ()">← Prev</button>
+      <button class="tbtn tbtn-next" onclick="nextQ()">Save &amp; Next →</button>
+      <button class="tbtn tbtn-sub" onclick="confirmSub()">Submit Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- Warning Modal -->
+<div class="overlay" id="warn-ov">
+  <div class="modal">
+    <div class="m-ico" id="w-ico">⚠️</div>
+    <h2 id="w-title">Exiting Fullscreen!</h2>
+    <p id="w-msg">You have exited fullscreen. <strong>Warning 1 of 2</strong> — one more exit will auto-submit your test.</p>
+    <div class="m-btns">
+      <button class="mbtn mbtn-go" onclick="returnFS()">↩ Return to Fullscreen</button>
+      <button class="mbtn mbtn-sub" onclick="doSubmit()">Submit Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submit Confirm -->
+<div class="overlay" id="sub-ov">
+  <div class="modal">
+    <div class="m-ico">📋</div>
+    <h2>Submit Test?</h2>
+    <p id="sub-msg">Are you sure?</p>
+    <div class="m-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeOv('sub-ov')">Continue Test</button>
+      <button class="mbtn mbtn-sub" onclick="doSubmit()">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let testData=null, questions=[], SUBJS=[];
+// answers: MCQ → {gi: 0|1|2|3}, MSQ → {gi: Set of indices}
+let answers={}, marked=new Set();
+let curSI=0, curLI=0;
+let timerInt=null, timeLeft=0, warnCount=0;
+
+window.addEventListener('DOMContentLoaded',()=>{
+  try{
+    const raw=sessionStorage.getItem('ntaprep_test');
+    if(!raw) throw new Error();
+    testData=JSON.parse(raw);
+    setTimeout(initTest,500);
+  }catch(e){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('no-data').style.display='flex';
+  }
+});
+
+function initTest(){
+  const order=['Physics','Chemistry','Mathematics'];
+  const byS={};
+  testData.crops.forEach(c=>{if(!byS[c.subject])byS[c.subject]=[];byS[c.subject].push(c);});
+  SUBJS=order.filter(s=>byS[s]&&byS[s].length>0);
+  questions=[];
+  SUBJS.forEach(s=>byS[s].forEach((c,i)=>questions.push({...c,subject:s,localIdx:i})));
+  document.getElementById('t-name').textContent='NTAprep · '+testData.name;
+  timeLeft=testData.duration*60;
+  buildTabs(); renderQ(); buildPal(); updateSumm();
+  startTimer();
+  setTimeout(()=>{
+    document.getElementById('loading').style.display='none';
+    document.getElementById('test-screen').classList.add('on');
+    goFS(); listenFS();
+  },600);
+}
+
+function gSQ(s){return questions.filter(q=>q.subject===s);}
+function gIdx(si,li){let g=0;for(let i=0;i<si;i++)g+=gSQ(SUBJS[i]).length;return g+li;}
+function cg(){return gIdx(curSI,curLI);}
+
+function buildTabs(){
+  const bar=document.getElementById('subj-bar'); bar.innerHTML='';
+  SUBJS.forEach((s,i)=>{
+    const b=document.createElement('button'); b.className='stab'+(i===0?' on':''); b.id='stab-'+i;
+    b.innerHTML=s+` <span class="sc" id="sc-${i}">0/${gSQ(s).length}</span>`;
+    b.onclick=()=>switchS(i); bar.appendChild(b);
+  });
+}
+function updateTabs(){
+  SUBJS.forEach((s,i)=>{
+    const qs=gSQ(s); let done=0;
+    qs.forEach((_,li)=>{const gi=gIdx(i,li);if(isAnswered(gi))done++;});
+    const sc=document.getElementById('sc-'+i); if(sc)sc.textContent=done+'/'+qs.length;
+    const tb=document.getElementById('stab-'+i); if(tb)tb.className='stab'+(i===curSI?' on':'');
+  });
+}
+function switchS(i){curSI=i;curLI=0;renderQ();buildPal();updateTabs();}
+
+function isAnswered(gi){
+  const q=questions[gi]; if(!q)return false;
+  if(q.qtype==='msq') return answers[gi] instanceof Set && answers[gi].size>0;
+  return answers[gi]!==undefined;
+}
+
+function renderQ(){
+  const subj=SUBJS[curSI], qs=gSQ(subj), q=qs[curLI];
+  if(!q)return;
+  const gi=cg(), isMSQ=q.qtype==='msq';
+  const isA=isAnswered(gi), isM=marked.has(gi);
+  document.getElementById('qn').textContent=curLI+1;
+  document.getElementById('qt').textContent=qs.length;
+  document.getElementById('q-meta').textContent=subj+' — Section A';
+  document.getElementById('q-img').src=q.dataURL;
+  // Type badge
+  const ct=document.getElementById('chip-type');
+  ct.className='chip chip-type'+(isMSQ?' msq':'');
+  ct.textContent=isMSQ?'Multiple Correct':'Single Correct';
+  document.getElementById('chip-neg').textContent=isMSQ?'−2':'−1';
+  document.getElementById('msq-hint').style.display=isMSQ?'block':'none';
+  // Status
+  const st=document.getElementById('q-stat');
+  st.className='q-stat '+(isA?'ans':isM?'mrk':'nv');
+  st.textContent=isA?'Answered':isM?'Marked for Review':'Not Visited';
+  // Options
+  const og=document.getElementById('opts'); og.innerHTML='';
+  const curAns=answers[gi]; // Set for MSQ, number for MCQ
+  ['A','B','C','D'].forEach((lbl,i)=>{
+    const d=document.createElement('div');
+    let isSel=false;
+    if(isMSQ) isSel=curAns instanceof Set&&curAns.has(i);
+    else isSel=curAns===i;
+    d.className='opt'+(isMSQ?(isSel?' sel-m':''):(isSel?' sel':''));
+    const shape=isMSQ?`<div class="opt-sq">${isSel?'✓':lbl}</div>`:`<div class="opt-circ">${lbl}</div>`;
+    d.innerHTML=`${shape}<div class="opt-txt">Option ${lbl}</div>`;
+    d.onclick=()=>{
+      if(isMSQ){
+        if(!answers[gi]||!(answers[gi] instanceof Set)) answers[gi]=new Set();
+        if(answers[gi].has(i)) answers[gi].delete(i); else answers[gi].add(i);
+        if(answers[gi].size===0) delete answers[gi];
+      } else {
+        answers[gi]=i;
+      }
+      renderQ(); buildPal(); updateTabs(); updateSumm();
+    };
+    og.appendChild(d);
+  });
+  buildPal();
+  document.getElementById('q-area').scrollTop=0;
+}
+
+function buildPal(){
+  const subj=SUBJS[curSI], qs=gSQ(subj);
+  const grid=document.getElementById('pal-grid'); grid.innerHTML='';
+  const start=SUBJS.slice(0,curSI).reduce((a,s)=>a+gSQ(s).length,0);
+  document.getElementById('pal-lbl').textContent=subj+' ('+(start+1)+'–'+(start+qs.length)+')';
+  qs.forEach((_,i)=>{
+    const gi=gIdx(curSI,i);
+    const d=document.createElement('div');
+    d.className='pq'+(i===curLI?' cur':isAnswered(gi)?' done':marked.has(gi)?' rev':'');
+    d.textContent=i+1;
+    d.onclick=(()=>{const li=i;return()=>{curLI=li;renderQ();}})();
+    grid.appendChild(d);
+  });
+}
+
+function updateSumm(){
+  const done=questions.filter((_,gi)=>isAnswered(gi)).length;
+  document.getElementById('s-ans').textContent=done;
+  document.getElementById('s-mrk').textContent=marked.size;
+  document.getElementById('s-left').textContent=questions.length-done;
+}
+
+function nextQ(){const qs=gSQ(SUBJS[curSI]);if(curLI<qs.length-1){curLI++;renderQ();buildPal();}else if(curSI<SUBJS.length-1)switchS(curSI+1);}
+function prevQ(){if(curLI>0){curLI--;renderQ();buildPal();}else if(curSI>0){curSI--;curLI=gSQ(SUBJS[curSI]).length-1;renderQ();buildPal();updateTabs();}}
+function clearAns(){const gi=cg();delete answers[gi];renderQ();buildPal();updateTabs();updateSumm();}
+function markRev(){const gi=cg();if(marked.has(gi))marked.delete(gi);else marked.add(gi);buildPal();updateSumm();nextQ();}
+
+function startTimer(){
+  if(timerInt)clearInterval(timerInt);
+  timerInt=setInterval(()=>{
+    timeLeft--;
+    if(timeLeft<=0){clearInterval(timerInt);doSubmit();return;}
+    const h=String(Math.floor(timeLeft/3600)).padStart(2,'0');
+    const m=String(Math.floor((timeLeft%3600)/60)).padStart(2,'0');
+    const s=String(timeLeft%60).padStart(2,'0');
+    document.getElementById('timer').textContent=`${h}:${m}:${s}`;
+    document.getElementById('timer-box').classList.toggle('warn',timeLeft<=600);
+  },1000);
+}
+
+function goFS(){const el=document.getElementById('test-screen');(el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el);}
+function listenFS(){document.addEventListener('fullscreenchange',onFSC);document.addEventListener('webkitfullscreenchange',onFSC);}
+let fst=null;
+function onFSC(){
+  const inFS=!!(document.fullscreenElement||document.webkitFullscreenElement);
+  const on=document.getElementById('test-screen').classList.contains('on');
+  const mod=document.getElementById('warn-ov').classList.contains('on')||document.getElementById('sub-ov').classList.contains('on');
+  if(!inFS&&on&&!mod){
+    warnCount++;
+    if(warnCount>=2){
+      document.getElementById('w-ico').textContent='🚨';
+      document.getElementById('w-title').textContent='FINAL WARNING!';
+      document.getElementById('w-msg').innerHTML='Exited fullscreen <strong>twice</strong>. Test auto-submits in <strong>10 seconds</strong>.';
+      document.getElementById('warn-ov').classList.add('on');
+      fst=setTimeout(()=>{if(document.getElementById('warn-ov').classList.contains('on')){closeOv('warn-ov');doSubmit();}},10000);
+    } else {
+      document.getElementById('w-ico').textContent='⚠️';
+      document.getElementById('w-title').textContent='Exiting Fullscreen!';
+      document.getElementById('w-msg').innerHTML='You exited fullscreen. <strong>Warning 1 of 2</strong> — one more exit will auto-submit.';
+      document.getElementById('warn-ov').classList.add('on');
+    }
+  }
+}
+function returnFS(){closeOv('warn-ov');if(fst){clearTimeout(fst);fst=null;}goFS();}
+
+function confirmSub(){
+  const done=questions.filter((_,gi)=>isAnswered(gi)).length;
+  document.getElementById('sub-msg').textContent=`Answered ${done} of ${questions.length}. ${questions.length-done} unanswered. Submit?`;
+  document.getElementById('sub-ov').classList.add('on');
+}
+
+function doSubmit(){
+  clearInterval(timerInt);
+  if(fst){clearTimeout(fst);fst=null;}
+  closeOv('warn-ov');closeOv('sub-ov');
+  // Serialize answers (Sets → arrays for JSON)
+  const serialAnswers={};
+  questions.forEach((_,gi)=>{
+    if(answers[gi]!==undefined){
+      serialAnswers[gi]=answers[gi] instanceof Set ? Array.from(answers[gi]) : answers[gi];
+    }
+  });
+  // Save test state for answer key + results page
+  const state={
+    testData,
+    questions: questions.map((q,gi)=>({
+      subject:q.subject, qtype:q.qtype, dataURL:q.dataURL,
+      answered: serialAnswers[gi]!==undefined,
+      userAnswer: serialAnswers[gi]!==undefined ? serialAnswers[gi] : null
+    })),
+    SUBJS,
+    timeUsed: testData.duration*60 - timeLeft,
+    submittedAt: Date.now()
+  };
+  sessionStorage.setItem('ntaprep_state', JSON.stringify(state));
+  if(document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+  window.location.href='answerkey.html';
+}
+function closeOv(id){document.getElementById(id).classList.remove('on');}
+</script>
+</body>
+</html>
