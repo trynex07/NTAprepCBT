@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Answer Key — NTAprep</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--nta:#1a237e;--acc:#1565c0;--green:#2e7d32;--red:#c62828;--orange:#e65100;--bg:#f3f1ec;--brd:#dedad2;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;}
+/* NAV */
+nav{background:var(--nta);padding:0 5%;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;}
+.nlogo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:#fff;}
+.nlogo span{color:#86efac;}
+.nsub{font-size:.7rem;color:rgba(255,255,255,.45);margin-top:1px;}
+.nav-r{display:flex;gap:8px;align-items:center;}
+.nbtn{background:rgba(255,255,255,.12);color:#fff;padding:7px 14px;border-radius:7px;border:none;font-size:.77rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.nbtn:hover{background:rgba(255,255,255,.22);}
+.nbtn-go{background:#16a34a;color:#fff;}
+.nbtn-go:hover{background:#15803d;}
+
+/* HERO banner */
+.hero-bar{background:linear-gradient(90deg,#1a237e,#283593);color:#fff;padding:20px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.hero-bar h1{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;}
+.hero-bar p{font-size:.82rem;opacity:.65;margin-top:3px;max-width:480px;line-height:1.5;}
+.hero-stat{text-align:center;}
+.hs-n{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;}
+.hs-l{font-size:.7rem;opacity:.55;}
+
+/* Filters */
+.filters{padding:14px 5%;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border-bottom:1px solid var(--brd);}
+.f-label{font-size:.78rem;font-weight:600;color:#666;}
+.subj-filter{padding:6px 14px;border-radius:100px;border:1.5px solid var(--brd);background:#fff;color:#666;font-size:.78rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.subj-filter.on{border-color:var(--nta);background:var(--nta);color:#fff;}
+
+/* Grid */
+.main{padding:20px 5%;max-width:1200px;margin:0 auto;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+
+/* Question card */
+.qcard{background:#fff;border:1.5px solid var(--brd);border-radius:12px;overflow:hidden;transition:border-color .15s;}
+.qcard:hover{border-color:#94a3b8;}
+.qcard.done{border-color:var(--green);}
+.qcard-top{padding:10px 12px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.qcard-id{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;color:#333;}
+.qcard-badges{display:flex;gap:6px;align-items:center;}
+.badge{padding:2px 8px;border-radius:100px;font-size:.65rem;font-weight:600;}
+.badge-subj{background:#e0f2fe;color:#0369a1;}
+.badge-mcq{background:#ede9fe;color:#5b21b6;}
+.badge-msq{background:#fdf4ff;color:#7e22ce;}
+.user-ans{font-size:.7rem;padding:2px 8px;border-radius:100px;font-weight:500;}
+.user-ans.answered{background:#e8f5e9;color:#166534;}
+.user-ans.skipped{background:#fff7ed;color:#c2410c;}
+.qimg-wrap{padding:10px 12px;border-bottom:1px solid #f0f0f0;background:#fafafa;text-align:center;height:100px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.qimg-wrap img{max-width:100%;max-height:90px;object-fit:contain;}
+/* Answer selector */
+.ans-zone{padding:10px 12px;}
+.ans-label{font-size:.68rem;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+/* MCQ: radio-style */
+.mcq-opts{display:flex;gap:6px;}
+.opt-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;color:#666;transition:all .12s;font-family:'DM Sans',sans-serif;}
+.opt-btn:hover{border-color:var(--green);color:var(--green);}
+.opt-btn.sel{border-color:var(--green);background:#e8f5e9;color:#166534;}
+/* MSQ: checkbox-style */
+.msq-opts{display:flex;gap:6px;flex-wrap:wrap;}
+.msq-btn{padding:5px 12px;border-radius:7px;border:1.5px solid #ddd;font-size:.78rem;font-weight:600;cursor:pointer;background:#fff;color:#666;transition:all .12s;font-family:'DM Sans',sans-serif;}
+.msq-btn:hover{border-color:#7c3aed;}
+.msq-btn.sel{border-color:#7c3aed;background:#ede9fe;color:#5b21b6;}
+/* User answer display */
+.user-row{margin-top:7px;padding:5px 8px;border-radius:7px;background:#f8f7f4;font-size:.72rem;color:#666;}
+.user-row strong{color:#333;}
+/* Done tick */
+.done-tick{color:var(--green);font-size:1rem;}
+
+/* Sticky bottom bar */
+.bottom-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--brd);padding:12px 5%;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:50;flex-wrap:wrap;}
+.bb-stat{font-size:.8rem;color:#666;}
+.bb-stat strong{color:var(--nta);font-family:'Syne',sans-serif;font-size:.9rem;}
+.bb-btn{background:var(--green);color:#fff;border:none;padding:12px 28px;border-radius:100px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s;}
+.bb-btn:hover{opacity:.85;}
+.bb-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+#no-data{text-align:center;padding:80px 20px;}
+#no-data h2{font-family:'Syne',sans-serif;font-size:1.4rem;margin-bottom:.5rem;}
+#no-data p{font-size:.85rem;color:#888;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div>
+    <div class="nlogo">NTA<span>prep</span></div>
+    <div class="nsub">Answer Key Entry</div>
+  </div>
+  <div class="nav-r">
+    <button class="nbtn" onclick="history.back()">← Back</button>
+    <button class="nbtn nbtn-go" id="calc-btn" disabled onclick="calcResults()">Calculate Results →</button>
+  </div>
+</nav>
+
+<div id="no-data" style="display:none">
+  <div style="font-size:3rem;margin-bottom:1rem">📭</div>
+  <h2>No Test State Found</h2>
+  <p>Complete a test first, then submit it.</p>
+  <a href="maker.html" style="display:inline-block;margin-top:1rem;background:var(--nta);color:#fff;padding:10px 20px;border-radius:100px;text-decoration:none;font-weight:500">← Make a Test</a>
+</div>
+
+<div id="main-wrap" style="display:none">
+  <div class="hero-bar">
+    <div>
+      <h1>📋 Enter Correct Answers</h1>
+      <p>Review each question and mark the correct option(s). This is used to calculate your final score.</p>
+    </div>
+    <div style="display:flex;gap:24px;">
+      <div class="hero-stat"><div class="hs-n" id="total-qs">0</div><div class="hs-l">Total Questions</div></div>
+      <div class="hero-stat"><div class="hs-n" id="keys-done">0</div><div class="hs-l">Keys Entered</div></div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <span class="f-label">Filter:</span>
+    <button class="subj-filter on" onclick="filterSubj('all',this)">All</button>
+    <button class="subj-filter" id="sf-Physics" onclick="filterSubj('Physics',this)">⚛ Physics</button>
+    <button class="subj-filter" id="sf-Chemistry" onclick="filterSubj('Chemistry',this)">🧪 Chemistry</button>
+    <button class="subj-filter" id="sf-Mathematics" onclick="filterSubj('Mathematics',this)">∫ Maths</button>
+  </div>
+
+  <div class="main">
+    <div class="grid" id="qgrid"></div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="bb-stat">Keys entered: <strong id="bb-done">0</strong> / <strong id="bb-tot">0</strong></div>
+    <button class="bb-btn" id="bb-calc" disabled onclick="calcResults()">✅ Calculate Score &amp; See Results →</button>
+  </div>
+</div>
+
+<script>
+let state=null, correctKeys={};
+
+window.addEventListener('DOMContentLoaded',()=>{
+  const raw=sessionStorage.getItem('ntaprep_state');
+  if(!raw){document.getElementById('no-data').style.display='block';return;}
+  state=JSON.parse(raw);
+  document.getElementById('main-wrap').style.display='block';
+  document.getElementById('total-qs').textContent=state.questions.length;
+  document.getElementById('bb-tot').textContent=state.questions.length;
+  renderGrid();
+});
+
+function renderGrid(filter='all'){
+  const grid=document.getElementById('qgrid');
+  grid.innerHTML='';
+  state.questions.forEach((q,gi)=>{
+    if(filter!=='all'&&q.subject!==filter)return;
+    grid.appendChild(makeCard(q,gi));
+  });
+}
+
+function makeCard(q,gi){
+  const isMSQ=q.qtype==='msq';
+  const ua=q.userAnswer;
+  let uaText='Skipped';
+  if(ua!==null&&ua!==undefined){
+    if(Array.isArray(ua)) uaText='You chose: '+ua.map(i=>['A','B','C','D'][i]).join(', ');
+    else uaText='You chose: '+['A','B','C','D'][ua];
+  }
+  const ck=correctKeys[gi];
+  const div=document.createElement('div');
+  div.className='qcard'+(ck!==undefined?' done':'');
+  div.id='qcard-'+gi;
+
+  const ansZone=isMSQ ? buildMSQZone(gi,ck) : buildMCQZone(gi,ck);
+
+  div.innerHTML=`
+    <div class="qcard-top">
+      <div class="qcard-id">Q${gi+1} ${ck!==undefined?'<span class="done-tick">✓</span>':''}</div>
+      <div class="qcard-badges">
+        <span class="badge badge-subj">${q.subject.substring(0,4)}</span>
+        <span class="badge ${isMSQ?'badge-msq':'badge-mcq'}">${isMSQ?'MSQ':'MCQ'}</span>
+        <span class="user-ans ${ua!==null&&ua!==undefined?'answered':'skipped'}">${uaText}</span>
+      </div>
+    </div>
+    <div class="qimg-wrap"><img src="${q.dataURL}" alt="Q${gi+1}"></div>
+    <div class="ans-zone">
+      <div class="ans-label">✅ Mark Correct Answer${isMSQ?'(s)':''}</div>
+      <div id="opt-zone-${gi}">${ansZone}</div>
+    </div>`;
+  return div;
+}
+
+function buildMCQZone(gi,ck){
+  return `<div class="mcq-opts">
+    ${['A','B','C','D'].map((l,i)=>`
+      <div class="opt-btn${ck===i?' sel':''}" onclick="setMCQKey(${gi},${i},this)">${l}</div>
+    `).join('')}
+  </div>`;
+}
+function buildMSQZone(gi,ck){
+  const selSet=new Set(Array.isArray(ck)?ck:[]);
+  return `<div class="msq-opts">
+    ${['A','B','C','D'].map((l,i)=>`
+      <div class="msq-btn${selSet.has(i)?' sel':''}" onclick="toggleMSQKey(${gi},${i},this)">${l}</div>
+    `).join('')}
+  </div>`;
+}
+
+function setMCQKey(gi,optIdx,el){
+  correctKeys[gi]=optIdx;
+  // Update buttons
+  const zone=document.getElementById('opt-zone-'+gi);
+  zone.querySelectorAll('.opt-btn').forEach((b,i)=>b.classList.toggle('sel',i===optIdx));
+  markCardDone(gi);
+  updateCounts();
+}
+function toggleMSQKey(gi,optIdx,el){
+  if(!Array.isArray(correctKeys[gi]))correctKeys[gi]=[];
+  const arr=correctKeys[gi];
+  const idx=arr.indexOf(optIdx);
+  if(idx>=0)arr.splice(idx,1);else arr.push(optIdx);
+  if(arr.length===0)delete correctKeys[gi];
+  el.classList.toggle('sel',correctKeys[gi]&&correctKeys[gi].includes(optIdx));
+  markCardDone(gi);
+  updateCounts();
+}
+function markCardDone(gi){
+  const card=document.getElementById('qcard-'+gi);
+  if(!card)return;
+  const done=correctKeys[gi]!==undefined&&(Array.isArray(correctKeys[gi])?correctKeys[gi].length>0:true);
+  card.classList.toggle('done',done);
+  // Update tick in header
+  const hdr=card.querySelector('.qcard-id');
+  if(hdr){
+    hdr.innerHTML=`Q${gi+1} ${done?'<span class="done-tick">✓</span>':''}`;
+  }
+}
+function updateCounts(){
+  const done=Object.keys(correctKeys).length;
+  document.getElementById('keys-done').textContent=done;
+  document.getElementById('bb-done').textContent=done;
+  const enabled=done>0;
+  document.getElementById('bb-calc').disabled=!enabled;
+  document.getElementById('calc-btn').disabled=!enabled;
+}
+function filterSubj(subj,el){
+  document.querySelectorAll('.subj-filter').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  renderGrid(subj);
+}
+
+function calcResults(){
+  // Score each question
+  let total=0;
+  const sScore={},sCorr={},sAns={},sTotal={};
+  state.SUBJS.forEach(s=>{sScore[s]=0;sCorr[s]=0;sAns[s]=0;sTotal[s]=0;});
+  state.questions.forEach((q,gi)=>{
+    const subj=q.subject; sTotal[subj]=(sTotal[subj]||0)+1;
+    const ua=q.userAnswer, ck=correctKeys[gi];
+    const answered=ua!==null&&ua!==undefined;
+    if(answered) sAns[subj]=(sAns[subj]||0)+1;
+    if(ck===undefined||!answered)return; // no key or not answered → skip
+    if(q.qtype==='msq'){
+      const userSet=new Set(Array.isArray(ua)?ua:[ua]);
+      const corrSet=new Set(Array.isArray(ck)?ck:[ck]);
+      const isExact=userSet.size===corrSet.size&&[...userSet].every(v=>corrSet.has(v));
+      const isSubset=[...userSet].every(v=>corrSet.has(v))&&userSet.size<corrSet.size;
+      if(isExact){total+=4;sScore[subj]+=4;sCorr[subj]++;}
+      else if(isSubset){total+=userSet.size;sScore[subj]+=userSet.size;} // partial
+      else{total-=2;sScore[subj]-=2;} // wrong
+    } else {
+      if(ua===ck){total+=4;sScore[subj]+=4;sCorr[subj]++;}
+      else{total-=1;sScore[subj]-=1;}
+    }
+  });
+  let cor=0,wr=0,sk=0;
+  state.questions.forEach((q,gi)=>{
+    const ua=q.userAnswer, ck=correctKeys[gi];
+    if(ua===null||ua===undefined){sk++;return;}
+    if(ck===undefined){sk++;return;}
+    if(q.qtype==='msq'){
+      const uS=new Set(Array.isArray(ua)?ua:[]);
+      const cS=new Set(Array.isArray(ck)?ck:[]);
+      if(uS.size===cS.size&&[...uS].every(v=>cS.has(v)))cor++;
+      else wr++;
+    } else {
+      if(ua===ck)cor++;else wr++;
+    }
+  });
+  const result={
+    name:state.testData.name, total,
+    maxScore:state.questions.length*4,
+    cor,wr,sk, timeUsed:state.timeUsed,
+    sScore,sCorr,sAns,sTotal,
+    SUBJS:state.SUBJS,
+    questions:state.questions.map((q,gi)=>({
+      ...q,
+      correctAnswer:correctKeys[gi]!==undefined?correctKeys[gi]:null
+    })),
+    correctKeys
+  };
+  sessionStorage.setItem('ntaprep_result',JSON.stringify(result));
+  window.location.href='results.html';
+}
+</script>
+</body>
+</html>
