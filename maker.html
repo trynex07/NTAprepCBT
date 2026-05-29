@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Maker — NTAprep</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--acc:#16a34a;--acc2:#15803d;--brd:#333;--ink:#0d0c0a;--mut:#888;--panel:#1a1a1a;--panelb:#222;}
+body{font-family:'DM Sans',sans-serif;background:var(--panel);color:#e0e0e0;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{background:#111;border-bottom:1px solid #2a2a2a;padding:0 16px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.hlogo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:#e0e0e0;}
+.hlogo span{color:var(--acc);}
+.hstatus{font-size:.74rem;color:#666;}
+.hbtn{padding:6px 14px;border-radius:7px;font-size:.78rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;}
+.hbtn-home{background:#2a2a2a;color:#aaa;}
+.layout{display:flex;flex:1;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;background:#141414;border-right:1px solid #2a2a2a;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+.sb-sec{padding:11px 13px;border-bottom:1px solid #242424;}
+.sb-lbl{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:#555;margin-bottom:7px;}
+.pdf-btn{width:100%;padding:9px;background:var(--acc);color:#fff;border:none;border-radius:7px;font-size:.8rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.pdf-btn:hover{background:var(--acc2);}
+.pdf-info{font-size:.72rem;color:#666;margin-top:5px;line-height:1.5;white-space:pre-wrap;}
+.page-nav{display:flex;align-items:center;gap:5px;}
+.pnbtn{background:#252525;border:1px solid #333;color:#aaa;padding:5px 9px;border-radius:5px;cursor:pointer;font-size:.73rem;font-family:'DM Sans',sans-serif;}
+.page-inp{width:44px;background:#252525;border:1px solid #333;color:#ccc;padding:5px;border-radius:5px;font-size:.75rem;text-align:center;font-family:'DM Sans',sans-serif;}
+.page-tot{font-size:.73rem;color:#555;}
+.zoom-row{display:flex;align-items:center;gap:7px;}
+.zoom-sl{flex:1;accent-color:var(--acc);}
+.zoom-v{font-size:.72rem;color:#666;min-width:32px;}
+.def-row{margin-bottom:7px;}
+.def-row label{font-size:.7rem;color:#777;display:block;margin-bottom:3px;}
+.def-sel{width:100%;background:#222;border:1px solid #333;color:#ccc;padding:7px 9px;border-radius:6px;font-size:.78rem;font-family:'DM Sans',sans-serif;}
+.def-sel:focus{outline:none;border-color:var(--acc);}
+.hint-box{padding:9px 13px;font-size:.7rem;color:#555;line-height:1.6;background:#111;border-bottom:1px solid #222;}
+.hint-box strong{color:#777;}
+.clear-btn{width:100%;background:#1e1010;border:1px solid #3a2020;color:#f87171;border-radius:6px;padding:7px;font-size:.73rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* ── PDF VIEWER ── */
+.pdf-viewer{flex:1;overflow:auto;background:#525659;display:flex;flex-direction:column;align-items:center;padding:20px;position:relative;}
+.pdf-viewer::-webkit-scrollbar{width:6px;}
+.pdf-viewer::-webkit-scrollbar-track{background:#444;}
+.pdf-viewer::-webkit-scrollbar-thumb{background:#666;border-radius:3px;}
+#upload-prompt{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:#aaa;}
+#upload-prompt .big-i{font-size:3.5rem;margin-bottom:1rem;}
+#upload-prompt h2{font-family:'Syne',sans-serif;font-size:1.3rem;margin-bottom:.5rem;color:#ddd;}
+#upload-prompt p{font-size:.82rem;color:#777;max-width:280px;line-height:1.6;}
+.upcta{margin-top:1.2rem;background:var(--acc);color:#fff;border:none;padding:11px 22px;border-radius:100px;font-size:.84rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+#pages-container{width:100%;}
+.page-wrap{position:relative;margin:0 auto 24px;display:block;cursor:crosshair;user-select:none;}
+.page-wrap canvas{display:block;box-shadow:0 4px 24px rgba(0,0,0,.5);border-radius:4px;max-width:100%;}
+.page-lbl{text-align:center;color:rgba(255,255,255,.35);font-size:.7rem;padding:4px 0 10px;}
+.draw-rect{position:absolute;border:2px dashed #facc15;background:rgba(250,204,21,.07);pointer-events:none;z-index:10;}
+.crop-box{position:absolute;border:2px solid var(--acc);background:rgba(22,163,74,.1);pointer-events:none;z-index:9;border-radius:2px;}
+.crop-box-lbl{position:absolute;top:2px;left:3px;background:var(--acc);color:#fff;font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;line-height:1.4;font-family:'Syne',sans-serif;white-space:nowrap;}
+
+/* ── RIGHT PANEL ── */
+.right-panel{width:272px;background:#141414;border-left:1px solid #2a2a2a;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+.rp-head{padding:10px 13px;border-bottom:1px solid #242424;display:flex;align-items:center;justify-content:space-between;}
+.rp-head h3{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;color:#ccc;}
+.count-badge{background:var(--acc);color:#fff;border-radius:100px;padding:2px 8px;font-size:.66rem;font-weight:700;}
+.crops-scroll{flex:1;overflow-y:auto;padding:7px;}
+.crops-scroll::-webkit-scrollbar{width:4px;}
+.crops-scroll::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+.empty-msg{text-align:center;padding:28px 10px;color:#444;font-size:.78rem;line-height:1.7;}
+
+/* Crop card */
+.ccard{background:#1e1e1e;border:1.5px solid #2a2a2a;border-radius:9px;margin-bottom:7px;overflow:hidden;transition:border-color .15s;}
+.ccard:hover{border-color:#444;}
+.ccard.sel{border-color:var(--acc);}
+.cthumb{width:100%;height:60px;object-fit:cover;object-position:top;background:#252525;display:block;}
+.cmeta{padding:7px 9px;}
+.crow1{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.crow1 .qid{font-size:.7rem;font-weight:600;color:#999;}
+.crow1 .qtype-badge{font-size:.62rem;font-weight:600;padding:2px 7px;border-radius:100px;border:1px solid #444;color:#aaa;cursor:pointer;transition:all .15s;}
+.crow1 .qtype-badge.mcq{border-color:#3b82f6;color:#93c5fd;background:rgba(59,130,246,.1);}
+.crow1 .qtype-badge.msq{border-color:#a855f7;color:#d8b4fe;background:rgba(168,85,247,.1);}
+.crow2{display:flex;gap:5px;align-items:center;}
+.csubj-sel{flex:1;background:#252525;border:1px solid #333;color:#ccc;padding:4px 7px;border-radius:5px;font-size:.72rem;font-family:'DM Sans',sans-serif;}
+.cdel{background:#2a1515;border:none;color:#f87171;border-radius:5px;padding:4px 8px;cursor:pointer;font-size:.7rem;}
+
+.rp-foot{padding:11px 13px;border-top:1px solid #242424;display:flex;flex-direction:column;gap:7px;}
+.rp-inp{background:#222;border:1px solid #333;color:#ccc;padding:8px 10px;border-radius:7px;font-size:.79rem;font-family:'DM Sans',sans-serif;width:100%;}
+.rp-inp:focus{outline:none;border-color:var(--acc);}
+.launch-btn{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:11px;font-size:.84rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;}
+.launch-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+input[type="file"]{display:none;}
+</style>
+</head>
+<body>
+<input type="file" id="pdf-file" accept=".pdf">
+
+<header>
+  <div class="hlogo">NTA<span>prep</span> <span style="font-weight:400;font-size:.72rem;color:#555;margin-left:5px">/ Test Maker</span></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="hstatus" id="hstatus"></span>
+    <button class="hbtn hbtn-home" onclick="location.href='index.html'">← Home</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">PDF File</div>
+      <button class="pdf-btn" onclick="document.getElementById('pdf-file').click()">📂 Upload PDF</button>
+      <div class="pdf-info" id="pdf-info">No PDF loaded</div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Page Navigation</div>
+      <div class="page-nav">
+        <button class="pnbtn" onclick="changePage(-1)">‹</button>
+        <input type="number" class="page-inp" id="page-inp" value="1" min="1" onchange="jumpPage(this.value)">
+        <span class="page-tot" id="page-tot">/ 0</span>
+        <button class="pnbtn" onclick="changePage(1)">›</button>
+      </div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Zoom</div>
+      <div class="zoom-row">
+        <input type="range" class="zoom-sl" id="zoom-sl" min="0.5" max="3" step="0.1" value="1.5" oninput="setZoom(this.value)">
+        <span class="zoom-v" id="zoom-v">1.5×</span>
+      </div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Default for Next Crop</div>
+      <div class="def-row">
+        <label>Subject</label>
+        <select class="def-sel" id="def-subj">
+          <option value="Physics">⚛ Physics</option>
+          <option value="Chemistry">🧪 Chemistry</option>
+          <option value="Mathematics">∫ Mathematics</option>
+        </select>
+      </div>
+      <div class="def-row">
+        <label>Question Type</label>
+        <select class="def-sel" id="def-type">
+          <option value="mcq">Single Correct (MCQ)</option>
+          <option value="msq">Multiple Correct (MSQ)</option>
+        </select>
+      </div>
+    </div>
+    <div class="hint-box">
+      💡 <strong>Draw a box</strong> around each question on the PDF. Correct answers are set <strong>after the exam</strong> via the Answer Key screen.
+    </div>
+    <div style="padding:9px 13px;">
+      <button class="clear-btn" onclick="clearAll()">🗑 Clear All Crops</button>
+    </div>
+  </div>
+
+  <!-- PDF VIEWER -->
+  <div class="pdf-viewer" id="pdf-viewer">
+    <div id="upload-prompt">
+      <div class="big-i">📄</div>
+      <h2>Upload a PDF to start</h2>
+      <p>Draw boxes around questions — diagrams & equations captured perfectly.</p>
+      <button class="upcta" onclick="document.getElementById('pdf-file').click()">📂 Choose PDF File</button>
+    </div>
+    <div id="pages-container" style="display:none"></div>
+  </div>
+
+  <!-- RIGHT PANEL: Crops -->
+  <div class="right-panel">
+    <div class="rp-head">
+      <h3>Cropped Questions</h3>
+      <span class="count-badge" id="crop-count">0</span>
+    </div>
+    <div class="crops-scroll" id="crops-list">
+      <div class="empty-msg">📝 Cropped questions appear here.<br><br>Draw boxes on the PDF to add them.</div>
+    </div>
+    <div class="rp-foot">
+      <input class="rp-inp" id="test-name" type="text" placeholder="Test name (e.g. JEE Main 2026)">
+      <input class="rp-inp" id="test-dur" type="number" placeholder="Duration (minutes)" value="180">
+      <button class="launch-btn" id="launch-btn" disabled onclick="launchTest()">🚀 Launch CBT Test</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let pdfDoc=null, totalPages=0, currentPage=1, zoom=1.5;
+let crops=[], nextId=1;
+let drawing=false, drawStart={x:0,y:0}, drawDiv=null, drawCanvas=null;
+
+// ── PDF ────────────────────────────────────────────────────────────────
+document.getElementById('pdf-file').addEventListener('change', async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  setSt('Loading PDF…');
+  const ab=await f.arrayBuffer();
+  pdfDoc=await pdfjsLib.getDocument({data:ab}).promise;
+  totalPages=pdfDoc.numPages;
+  document.getElementById('pdf-info').textContent=`📄 ${f.name}\n${totalPages} pages`;
+  document.getElementById('page-tot').textContent=`/ ${totalPages}`;
+  document.getElementById('page-inp').max=totalPages;
+  document.getElementById('upload-prompt').style.display='none';
+  const pc=document.getElementById('pages-container');
+  pc.style.display='block';
+  pc.innerHTML='';
+  for(let p=1;p<=totalPages;p++){
+    const wrap=document.createElement('div');
+    wrap.className='page-wrap'; wrap.dataset.page=p;
+    const canvas=document.createElement('canvas'); canvas.dataset.page=p;
+    wrap.appendChild(canvas);
+    const lbl=document.createElement('div'); lbl.className='page-lbl'; lbl.textContent='Page '+p;
+    wrap.appendChild(lbl);
+    pc.appendChild(wrap);
+    await renderPage(p,canvas);
+    attachDraw(wrap,canvas,p);
+    redrawBoxes(wrap,p);
+  }
+  setSt(`${totalPages} pages loaded`);
+});
+
+async function renderPage(p,canvas){
+  const page=await pdfDoc.getPage(p);
+  const vp=page.getViewport({scale:zoom});
+  canvas.width=vp.width; canvas.height=vp.height;
+  await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+}
+
+async function rerenderAll(){
+  document.querySelectorAll('.page-wrap canvas').forEach(async canvas=>{
+    const p=parseInt(canvas.dataset.page);
+    await renderPage(p,canvas);
+    redrawBoxes(canvas.parentElement,p);
+  });
+}
+
+function setZoom(v){zoom=parseFloat(v);document.getElementById('zoom-v').textContent=zoom.toFixed(1)+'×';if(pdfDoc)rerenderAll();}
+function changePage(d){currentPage=Math.max(1,Math.min(totalPages,currentPage+d));document.getElementById('page-inp').value=currentPage;scrollToPage(currentPage);}
+function jumpPage(v){currentPage=Math.max(1,Math.min(totalPages,parseInt(v)||1));scrollToPage(currentPage);}
+function scrollToPage(p){const w=document.querySelector(`.page-wrap[data-page="${p}"]`);if(w)w.scrollIntoView({behavior:'smooth',block:'start'});}
+
+// ── Draw ────────────────────────────────────────────────────────────────
+function attachDraw(wrap,canvas,p){
+  canvas.addEventListener('mousedown',e=>startDraw(e,canvas,wrap,p));
+  canvas.addEventListener('mousemove',e=>moveDraw(e,canvas));
+  canvas.addEventListener('mouseup',e=>endDraw(e,canvas,wrap,p));
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();startDraw(e.touches[0],canvas,wrap,p);},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();moveDraw(e.touches[0],canvas);},{passive:false});
+  canvas.addEventListener('touchend',e=>{e.preventDefault();endDraw(e.changedTouches[0],canvas,wrap,p);},{passive:false});
+}
+
+function c2c(e,canvas){
+  const r=canvas.getBoundingClientRect();
+  return{
+    x:(e.clientX-r.left)*(canvas.width/r.width),
+    y:(e.clientY-r.top)*(canvas.height/r.height),
+    cx:e.clientX-r.left, cy:e.clientY-r.top
+  };
+}
+
+function startDraw(e,canvas,wrap,p){
+  const pos=c2c(e,canvas);
+  drawing=true; drawStart=pos; drawCanvas=canvas;
+  drawDiv=document.createElement('div'); drawDiv.className='draw-rect';
+  drawDiv.style.cssText=`left:${pos.cx}px;top:${pos.cy}px;width:0;height:0;`;
+  wrap.appendChild(drawDiv);
+}
+function moveDraw(e,canvas){
+  if(!drawing||!drawDiv||drawCanvas!==canvas)return;
+  const pos=c2c(e,canvas);
+  const r=canvas.getBoundingClientRect();
+  const sx=drawStart.cx,sy=drawStart.cy,cx=e.clientX-r.left,cy=e.clientY-r.top;
+  drawDiv.style.left=Math.min(sx,cx)+'px';drawDiv.style.top=Math.min(sy,cy)+'px';
+  drawDiv.style.width=Math.abs(cx-sx)+'px';drawDiv.style.height=Math.abs(cy-sy)+'px';
+}
+function endDraw(e,canvas,wrap,p){
+  if(!drawing)return; drawing=false;
+  if(drawDiv){drawDiv.remove();drawDiv=null;} drawCanvas=null;
+  const pos=c2c(e,canvas);
+  const x=Math.min(drawStart.x,pos.x),y=Math.min(drawStart.y,pos.y);
+  const w=Math.abs(pos.x-drawStart.x),h=Math.abs(pos.y-drawStart.y);
+  if(w<15||h<15)return;
+  addCrop(canvas,wrap,p,x,y,w,h);
+}
+
+// ── Add Crop ──────────────────────────────────────────────────────────
+function addCrop(canvas,wrap,p,x,y,w,h){
+  const tmp=document.createElement('canvas');
+  tmp.width=w; tmp.height=h;
+  tmp.getContext('2d').drawImage(canvas,x,y,w,h,0,0,w,h);
+  const dataURL=tmp.toDataURL('image/jpeg',0.92);
+  const subj=document.getElementById('def-subj').value;
+  const qtype=document.getElementById('def-type').value;
+  const crop={id:nextId++,page:p,x,y,w,h,dataURL,subject:subj,qtype}; // NO correct answer here!
+  crops.push(crop);
+  drawBox(wrap,canvas,crop);
+  addCard(crop);
+  updateCount();
+  setSt(`${crops.length} question${crops.length>1?'s':''} cropped`);
+}
+
+function drawBox(wrap,canvas,crop){
+  const r=canvas.getBoundingClientRect();
+  const sx=r.width/canvas.width, sy=r.height/canvas.height;
+  const box=document.createElement('div'); box.className='crop-box'; box.dataset.id=crop.id;
+  box.style.cssText=`left:${crop.x*sx}px;top:${crop.y*sy}px;width:${crop.w*sx}px;height:${crop.h*sy}px;`;
+  const idx=crops.indexOf(crop);
+  const lbl=document.createElement('div'); lbl.className='crop-box-lbl';
+  lbl.textContent=`Q${idx+1}·${crop.subject.substring(0,1)}·${crop.qtype.toUpperCase()}`;
+  box.appendChild(lbl);
+  wrap.appendChild(box);
+}
+function redrawBoxes(wrap,p){
+  wrap.querySelectorAll('.crop-box').forEach(el=>el.remove());
+  const canvas=wrap.querySelector('canvas');
+  if(!canvas)return;
+  crops.filter(c=>c.page===p).forEach(crop=>drawBox(wrap,canvas,crop));
+}
+function redrawAll(){document.querySelectorAll('.page-wrap').forEach(w=>redrawBoxes(w,parseInt(w.dataset.page)));}
+
+// ── Crop Cards ────────────────────────────────────────────────────────
+function addCard(crop){
+  const list=document.getElementById('crops-list');
+  if(list.querySelector('.empty-msg'))list.innerHTML='';
+  const idx=crops.indexOf(crop);
+  const div=document.createElement('div');
+  div.className='ccard'; div.dataset.id=crop.id;
+  div.innerHTML=`
+    <img class="cthumb" src="${crop.dataURL}" alt="Q${idx+1}">
+    <div class="cmeta">
+      <div class="crow1">
+        <span class="qid">Q${idx+1} · pg ${crop.page}</span>
+        <span class="qtype-badge ${crop.qtype}" onclick="toggleType(${crop.id},this)" title="Click to toggle type">
+          ${crop.qtype==='mcq'?'Single ✓':'Multi ✓✓'}
+        </span>
+      </div>
+      <div class="crow2">
+        <select class="csubj-sel" onchange="setSubj(${crop.id},this.value)">
+          <option value="Physics" ${crop.subject==='Physics'?'selected':''}>⚛ Physics</option>
+          <option value="Chemistry" ${crop.subject==='Chemistry'?'selected':''}>🧪 Chemistry</option>
+          <option value="Mathematics" ${crop.subject==='Mathematics'?'selected':''}>∫ Maths</option>
+        </select>
+        <button class="cdel" onclick="delCrop(${crop.id})">✕</button>
+      </div>
+    </div>`;
+  list.appendChild(div);
+  list.scrollTop=list.scrollHeight;
+  document.getElementById('launch-btn').disabled=false;
+}
+
+function rebuildCards(){
+  const list=document.getElementById('crops-list');
+  list.innerHTML='';
+  if(!crops.length){
+    list.innerHTML='<div class="empty-msg">📝 Cropped questions appear here.<br><br>Draw boxes on the PDF to add them.</div>';
+    document.getElementById('launch-btn').disabled=true;
+    return;
+  }
+  crops.forEach(c=>addCard(c));
+}
+function toggleType(id,el){
+  const c=crops.find(c=>c.id===id); if(!c)return;
+  c.qtype=c.qtype==='mcq'?'msq':'mcq';
+  el.className='qtype-badge '+c.qtype;
+  el.textContent=c.qtype==='mcq'?'Single ✓':'Multi ✓✓';
+  redrawAll();
+}
+function setSubj(id,v){const c=crops.find(c=>c.id===id);if(c)c.subject=v;redrawAll();}
+function delCrop(id){crops=crops.filter(c=>c.id!==id);rebuildCards();updateCount();redrawAll();}
+function clearAll(){if(!crops.length||confirm('Delete all cropped questions?')){crops=[];rebuildCards();updateCount();redrawAll();}}
+function updateCount(){document.getElementById('crop-count').textContent=crops.length;}
+function setSt(m){document.getElementById('hstatus').textContent=m;}
+
+// ── Launch ────────────────────────────────────────────────────────────
+function launchTest(){
+  if(!crops.length)return;
+  const td={
+    name:document.getElementById('test-name').value||'JEE Main Mock Test',
+    duration:parseInt(document.getElementById('test-dur').value)||180,
+    crops:crops.map(c=>({...c}))
+  };
+  try{
+    sessionStorage.setItem('ntaprep_test',JSON.stringify(td));
+    window.location.href='test.html';
+  }catch(e){
+    alert('Too many questions for browser memory. Try fewer crops or smaller images.');
+  }
+}
+window.addEventListener('resize',()=>{if(pdfDoc)redrawAll();});
+</script>
+</body>
+</html>
