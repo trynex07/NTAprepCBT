@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NTAprep — PDF to CBT for JEE & NEET</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#f3f1ec;--ink:#0d0c0a;--mut:#6b6860;--acc:#16a34a;--brd:#dedad2;--card:#fff;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);}
+nav{position:fixed;top:0;left:0;right:0;z-index:99;background:rgba(243,241,236,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--brd);padding:14px 5%;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.35rem;color:var(--ink);text-decoration:none;}
+.logo span{color:var(--acc);}
+.nav-btn{background:var(--ink);color:#fff;padding:9px 20px;border-radius:100px;font-size:.85rem;font-weight:500;text-decoration:none;transition:background .2s;}
+.nav-btn:hover{background:var(--acc);}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 5% 60px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--brd) 1px,transparent 1px),linear-gradient(90deg,var(--brd) 1px,transparent 1px);background-size:52px 52px;opacity:.4;z-index:-1;}
+.badge{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--brd);border-radius:100px;padding:5px 16px;font-size:.78rem;color:var(--mut);margin-bottom:1.6rem;}
+.pulse{width:7px;height:7px;border-radius:50%;background:#16a34a;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,.4)}50%{box-shadow:0 0 0 6px transparent}}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2.4rem,5.5vw,4.8rem);font-weight:800;line-height:1.05;letter-spacing:-2px;max-width:840px;}
+h1 em{font-style:normal;color:var(--acc);}
+.sub{margin-top:1.2rem;font-size:1rem;color:var(--mut);max-width:520px;line-height:1.75;}
+.btns{display:flex;gap:10px;margin-top:2rem;flex-wrap:wrap;justify-content:center;}
+.btn-main{background:var(--ink);color:#fff;padding:13px 28px;border-radius:100px;font-size:.9rem;font-weight:500;text-decoration:none;border:none;cursor:pointer;transition:background .2s;font-family:'DM Sans',sans-serif;}
+.btn-main:hover{background:var(--acc);}
+.btn-sec{background:transparent;color:var(--ink);padding:13px 28px;border-radius:100px;font-size:.9rem;font-weight:500;text-decoration:none;border:1.5px solid var(--brd);cursor:pointer;transition:border-color .2s;font-family:'DM Sans',sans-serif;}
+.btn-sec:hover{border-color:var(--ink);}
+.stats{display:flex;gap:36px;margin-top:3rem;flex-wrap:wrap;justify-content:center;}
+.stat-n{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;}
+.stat-n span{color:var(--acc);}
+.stat-l{font-size:.75rem;color:var(--mut);margin-top:2px;}
+.sec{padding:80px 5%;max-width:1140px;margin:0 auto;}
+.sec-tag{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--acc);margin-bottom:.8rem;}
+.sec-h{font-family:'Syne',sans-serif;font-size:clamp(1.6rem,3vw,2.5rem);font-weight:700;letter-spacing:-1px;max-width:500px;}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:2.4rem;border:1px solid var(--brd);border-radius:14px;overflow:hidden;}
+.step{background:var(--card);padding:26px;border-right:1px solid var(--brd);}
+.step:last-child{border-right:none;}
+.step-n{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--brd);}
+.step-i{font-size:1.4rem;margin:.5rem 0;}
+.step h3{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:.35rem;}
+.step p{font-size:.82rem;color:var(--mut);line-height:1.6;}
+.feats{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:2.4rem;}
+.feat{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:22px;}
+.feat i{font-size:1.3rem;display:block;margin-bottom:.7rem;}
+.feat h3{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.3rem;}
+.feat p{font-size:.8rem;color:var(--mut);line-height:1.6;}
+.cta-sec{background:var(--ink);padding:70px 5%;text-align:center;}
+.cta-sec .sec-tag{color:#86efac;}
+.cta-sec h2{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;color:#fff;letter-spacing:-1px;margin:.5rem auto 1rem;max-width:560px;}
+.cta-sec p{color:rgba(255,255,255,.5);font-size:.88rem;max-width:460px;margin:0 auto 1.8rem;line-height:1.7;}
+footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.07);text-align:center;padding:28px 5%;font-size:.78rem;color:rgba(255,255,255,.4);}
+footer strong{color:rgba(255,255,255,.65);}
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">NTA<span>prep</span></a>
+  <a class="nav-btn" href="maker.html">✂️ Make a Test →</a>
+</nav>
+
+<section class="hero">
+  <div class="badge"><span class="pulse"></span> Free · No login · Works offline</div>
+  <h1>Turn any JEE PDF into a<br><em>real NTA mock test</em></h1>
+  <p class="sub">Upload your question paper, crop each question as an image, then take a fullscreen CBT with the exact NTA interface — timer, palette, +4/−1 marking, auto-submit on exit.</p>
+  <div class="btns">
+    <a class="btn-main" href="maker.html">🚀 Start Making Test →</a>
+    <a class="btn-sec" href="#how">See How It Works</a>
+  </div>
+  <div class="stats">
+    <div><div class="stat-n">100<span>%</span></div><div class="stat-l">Free forever</div></div>
+    <div><div class="stat-n">0</div><div class="stat-l">Login required</div></div>
+    <div><div class="stat-n">NTA</div><div class="stat-l">Exact UI replica</div></div>
+  </div>
+</section>
+
+<section id="how" class="sec">
+  <div class="sec-tag">How it works</div>
+  <div class="sec-h">3 steps from PDF to real exam experience</div>
+  <div class="steps">
+    <div class="step"><div class="step-n">01</div><div class="step-i">📄</div><h3>Upload your PDF</h3><p>Drop any JEE/NEET paper. It renders page by page in a high-quality viewer.</p></div>
+    <div class="step"><div class="step-n">02</div><div class="step-i">✂️</div><h3>Crop questions</h3><p>Draw a box around each question. Assign subject (P/C/M) and correct answer. Works with diagrams & equations perfectly.</p></div>
+    <div class="step"><div class="step-n">03</div><div class="step-i">🖥️</div><h3>Take fullscreen CBT</h3><p>Exact NTA interface. Questions display as crisp images. Fullscreen lock with 2 exit warnings.</p></div>
+    <div class="step"><div class="step-n">04</div><div class="step-i">📊</div><h3>See results</h3><p>Instant score, subject breakdown, accuracy, and time analysis.</p></div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="sec-tag">Features</div>
+  <div class="sec-h">Everything a serious aspirant needs</div>
+  <div class="feats">
+    <div class="feat"><i>✂️</i><h3>Image-based Questions</h3><p>Crop from PDF — all diagrams, equations and graphs render perfectly. Zero OCR errors.</p></div>
+    <div class="feat"><i>🖥️</i><h3>True Fullscreen NTA UI</h3><p>Subject tabs, palette, status colours, +4/−1 marks, live timer — exact replica.</p></div>
+    <div class="feat"><i>⚠️</i><h3>Exit Warning System</h3><p>2 warnings before auto-submit on fullscreen exit — just like real NTA proctoring.</p></div>
+    <div class="feat"><i>🧮</i><h3>PCM Subjects</h3><p>Physics, Chemistry, Mathematics. Assign any question to any subject.</p></div>
+    <div class="feat"><i>🔑</i><h3>Answer Key</h3><p>Set correct option per question. Full +4/−1 scoring with instant result analysis.</p></div>
+    <div class="feat"><i>💾</i><h3>Auto-Save</h3><p>Test data saved in your browser. Pick up exactly where you left off if interrupted.</p></div>
+  </div>
+</section>
+
+<section class="cta-sec">
+  <div class="sec-tag">Start Now — Free</div>
+  <h2>Your PDF is already a mock test. You just don't know it yet.</h2>
+  <p>No signup. No ads. No data sent anywhere. Everything runs in your browser.</p>
+  <a class="btn-main" href="maker.html">🚀 Make My Test Now →</a>
+</section>
+
+<footer>
+  <p>Made with ❤️ for every aspirant who deserves a fair shot at IIT & AIIMS.</p>
+  <p style="margin-top:6px"><strong>NTAprep</strong> · Free · Open · No ads · No login · <a href="https://github.com/TheMoonVyy/pdf2cbt" style="color:#86efac" target="_blank">Inspired by pdf2cbt</a></p>
+</footer>
+</body>
+</html>
